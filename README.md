@@ -2,6 +2,23 @@
 
 A comprehensive Terraform module for designing routing strategy and connectivity architecture between on-premises networks and AWS Cloud. This module provides multiple connectivity options including VPN, Direct Connect, and Transit Gateway solutions.
 
+## Resource Map
+
+| Resource Type | Purpose | Configuration |
+|--------------|---------|---------------|
+| `aws_vpc` | Creates the main VPC | Configurable CIDR and DNS settings |
+| `aws_subnet` | Creates private/public subnets | Multiple AZ support |
+| `aws_vpn_gateway` | VPN gateway for S2S connections | BGP support |
+| `aws_customer_gateway` | Customer gateway configurations | Multiple gateway support |
+| `aws_vpn_connection` | Site-to-Site VPN connections | Static/Dynamic routing |
+| `aws_dx_gateway` | Direct Connect gateway | Cross-region support |
+| `aws_ec2_transit_gateway` | Transit gateway hub | Multi-VPC connectivity |
+| `aws_route_table` | Routing configuration | Public/Private subnet routing |
+| `aws_flow_log` | VPC Flow Logs | Network traffic monitoring |
+| `aws_cloudwatch_log_group` | Log storage | Flow logs retention |
+| `aws_iam_role` | IAM roles | Service permissions |
+| `aws_network_acl` | Network ACLs | Subnet-level security |
+
 ## Features
 
 - **Multi-Connectivity Options**: Support for VPN, Direct Connect, and Transit Gateway
