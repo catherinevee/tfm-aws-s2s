@@ -1,14 +1,14 @@
 package test
 
 import (
-	"testing"
 	"fmt"
 	"strings"
+	"testing"
 	"time"
 
-	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/random"
+	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -25,10 +25,10 @@ func TestS2SBasicVPN(t *testing.T) {
 	terraformOptions := &terraform.Options{
 		TerraformDir: "../examples/basic-vpn",
 		Vars: map[string]interface{}{
-			"name_prefix":    namePrefix,
-			"aws_region":     awsRegion,
-			"create_vpc":     true,
-			"vpc_cidr_block": "10.0.0.0/16",
+			"name_prefix":          namePrefix,
+			"aws_region":           awsRegion,
+			"create_vpc":           true,
+			"vpc_cidr_block":       "10.0.0.0/16",
 			"private_subnet_cidrs": []string{"10.0.1.0/24", "10.0.2.0/24"},
 			"public_subnet_cidrs":  []string{"10.0.101.0/24", "10.0.102.0/24"},
 		},
@@ -61,7 +61,7 @@ func TestS2SBasicVPN(t *testing.T) {
 	// Validate AWS resources exist
 	vpc := aws.GetVpcById(t, vpcId, awsRegion)
 	assert.Equal(t, "10.0.0.0/16", vpc.CidrBlock, "VPC CIDR should match expected value")
-	
+
 	// Validate subnets are in different AZs for high availability
 	privateSubnets := aws.GetSubnetsForVpc(t, vpcId, awsRegion)
 	azs := make(map[string]bool)
@@ -81,9 +81,9 @@ func TestS2STransitGateway(t *testing.T) {
 	terraformOptions := &terraform.Options{
 		TerraformDir: "../examples/transit-gateway",
 		Vars: map[string]interface{}{
-			"name_prefix": namePrefix,
-			"aws_region":  awsRegion,
-			"create_transit_gateway": true,
+			"name_prefix":                     namePrefix,
+			"aws_region":                      awsRegion,
+			"create_transit_gateway":          true,
 			"transit_gateway_amazon_side_asn": 64512,
 		},
 		EnvVars: map[string]string{
@@ -118,10 +118,10 @@ func TestS2SVPCFlowLogs(t *testing.T) {
 	terraformOptions := &terraform.Options{
 		TerraformDir: "../",
 		Vars: map[string]interface{}{
-			"name_prefix":          namePrefix,
-			"aws_region":           awsRegion,
-			"create_vpc":           true,
-			"enable_vpc_flow_logs": true,
+			"name_prefix":                 namePrefix,
+			"aws_region":                  awsRegion,
+			"create_vpc":                  true,
+			"enable_vpc_flow_logs":        true,
 			"vpc_flow_log_retention_days": 7,
 		},
 		EnvVars: map[string]string{
@@ -148,8 +148,8 @@ func TestS2SResourceTags(t *testing.T) {
 	namePrefix := fmt.Sprintf("test-tags-%s", strings.ToLower(random.UniqueId()))
 	awsRegion := "us-east-1"
 	expectedTags := map[string]string{
-		"Environment":     "test",
-		"Project":         "s2s-testing",
+		"Environment":      "test",
+		"Project":          "s2s-testing",
 		"terraform-module": "tfm-aws-s2s",
 	}
 
@@ -190,11 +190,11 @@ func TestS2SSecurityValidation(t *testing.T) {
 	terraformOptions := &terraform.Options{
 		TerraformDir: "../",
 		Vars: map[string]interface{}{
-			"name_prefix":                namePrefix,
-			"aws_region":                 awsRegion,
-			"create_vpc":                 true,
-			"create_vpn_security_group":  true,
-			"enable_vpc_flow_logs":       true,
+			"name_prefix":               namePrefix,
+			"aws_region":                awsRegion,
+			"create_vpc":                true,
+			"create_vpn_security_group": true,
+			"enable_vpc_flow_logs":      true,
 		},
 		EnvVars: map[string]string{
 			"AWS_DEFAULT_REGION": awsRegion,
@@ -209,11 +209,11 @@ func TestS2SSecurityValidation(t *testing.T) {
 	if sgId != "" {
 		sg := aws.GetSecurityGroupById(t, sgId, awsRegion)
 		assert.NotEmpty(t, sg.IngressRules, "Security group should have ingress rules")
-		
+
 		// Validate that security group rules are not overly permissive
 		for _, rule := range sg.IngressRules {
 			if rule.Protocol == "tcp" || rule.Protocol == "udp" {
-				assert.NotEqual(t, "0.0.0.0/0", rule.CidrBlocks[0], 
+				assert.NotEqual(t, "0.0.0.0/0", rule.CidrBlocks[0],
 					"Security group rules should not allow unrestricted access")
 			}
 		}

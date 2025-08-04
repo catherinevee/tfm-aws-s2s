@@ -6,15 +6,15 @@ footer-from: ""
 
 sections:
   hide:
-    - header
-    - footer
-    - requirements
-    - providers
-    - modules
-    - resources
+  - header
+  - footer
+  - requirements
+  - providers
+  - modules
+  - resources
   show:
-    - inputs
-    - outputs
+  - inputs
+  - outputs
 
 content: |-
   {{ .Header }}
