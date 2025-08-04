@@ -100,8 +100,9 @@ module "site_to_site" {
       static_routes_only   = false
       
       # Enhanced Tunnel Configuration
-      tunnel1_preshared_key = "your-preshared-key-1"
-      tunnel2_preshared_key = "your-preshared-key-2"
+      # Pre-shared keys should be provided via environment variables or secure parameter store
+      # tunnel1_preshared_key = var.tunnel1_preshared_key  # Set via TF_VAR_tunnel1_preshared_key
+      # tunnel2_preshared_key = var.tunnel2_preshared_key  # Set via TF_VAR_tunnel2_preshared_key
       
       tunnel1_dpd_timeout_action = "clear"
       tunnel2_dpd_timeout_action = "clear"
@@ -145,8 +146,9 @@ module "site_to_site" {
       customer_gateway_key = "secondary"
       static_routes_only   = false
       
-      tunnel1_preshared_key = "your-preshared-key-3"
-      tunnel2_preshared_key = "your-preshared-key-4"
+      # Pre-shared keys should be provided via environment variables or secure parameter store
+      # tunnel1_preshared_key = var.tunnel3_preshared_key  # Set via TF_VAR_tunnel3_preshared_key
+      # tunnel2_preshared_key = var.tunnel4_preshared_key  # Set via TF_VAR_tunnel4_preshared_key
       
       tags = {
         Environment = "production"

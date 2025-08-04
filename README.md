@@ -4,20 +4,54 @@ A comprehensive Terraform module for designing routing strategy and connectivity
 
 ## Resource Map
 
-| Resource Type | Purpose | Configuration |
-|--------------|---------|---------------|
-| `aws_vpc` | Creates the main VPC | Configurable CIDR and DNS settings |
-| `aws_subnet` | Creates private/public subnets | Multiple AZ support |
-| `aws_vpn_gateway` | VPN gateway for S2S connections | BGP support |
-| `aws_customer_gateway` | Customer gateway configurations | Multiple gateway support |
-| `aws_vpn_connection` | Site-to-Site VPN connections | Static/Dynamic routing |
-| `aws_dx_gateway` | Direct Connect gateway | Cross-region support |
-| `aws_ec2_transit_gateway` | Transit gateway hub | Multi-VPC connectivity |
-| `aws_route_table` | Routing configuration | Public/Private subnet routing |
-| `aws_flow_log` | VPC Flow Logs | Network traffic monitoring |
-| `aws_cloudwatch_log_group` | Log storage | Flow logs retention |
-| `aws_iam_role` | IAM roles | Service permissions |
-| `aws_network_acl` | Network ACLs | Subnet-level security |
+| Resource Type | Purpose | Configuration | Dependencies | Optional |
+|--------------|---------|---------------|-------------|----------|
+| `aws_vpc` | Creates the main VPC for connectivity | Configurable CIDR, DNS settings, IPv6 support | None | ❌ |
+| `aws_subnet` | Creates private/public subnets | Multi-AZ support, IPv6 optional | VPC | ❌ |
+| `aws_internet_gateway` | Provides internet access | Attached to VPC | VPC | ✅ |
+| `aws_nat_gateway` | Outbound internet for private subnets | One per AZ for HA | IGW, EIP, Public Subnet | ✅ |
+| `aws_eip` | Elastic IPs for NAT Gateways | Domain: VPC | IGW | ✅ |
+| `aws_route_table` | Routing configuration | Public/Private subnet routing | VPC | ❌ |
+| `aws_vpn_gateway` | VPN gateway for S2S connections | BGP support, configurable ASN | VPC | ✅ |
+| `aws_customer_gateway` | Customer gateway configurations | Multiple gateway support | None | ✅ |
+| `aws_vpn_connection` | Site-to-Site VPN connections | Static/Dynamic routing, IPSec | VGW, CGW | ✅ |
+| `aws_dx_gateway` | Direct Connect gateway | Cross-region support | None | ✅ |
+| `aws_ec2_transit_gateway` | Transit gateway hub | Multi-VPC connectivity, ECMP | None | ✅ |
+| `aws_flow_log` | VPC Flow Logs | Network traffic monitoring | VPC, IAM Role | ✅ |
+| `aws_cloudwatch_log_group` | Log storage | Flow logs retention, encryption | None | ✅ |
+| `aws_iam_role` | IAM roles | Service permissions | None | ✅ |
+| `aws_security_group` | Network security | VPN traffic rules | VPC | ✅ |
+| `aws_cloudwatch_metric_alarm` | Monitoring alerts | Connectivity monitoring | CloudWatch Logs | ✅ |
+| `aws_vpc_endpoint` | Private AWS service access | S3, DynamoDB, etc. | VPC | ✅ |
+
+### Resource Dependencies
+
+```mermaid
+graph TB
+    VPC[aws_vpc] --> IGW[aws_internet_gateway]
+    VPC --> Subnet_Private[aws_subnet - Private]
+    VPC --> Subnet_Public[aws_subnet - Public]
+    VPC --> RT_Private[aws_route_table - Private]
+    VPC --> RT_Public[aws_route_table - Public]
+    VPC --> VGW[aws_vpn_gateway]
+    VPC --> SG[aws_security_group]
+    VPC --> FlowLog[aws_flow_log]
+    
+    IGW --> EIP[aws_eip]
+    EIP --> NAT[aws_nat_gateway]
+    Subnet_Public --> NAT
+    
+    VGW --> VPN[aws_vpn_connection]
+    CGW[aws_customer_gateway] --> VPN
+    
+    FlowLog --> LogGroup[aws_cloudwatch_log_group]
+    FlowLog --> IAM[aws_iam_role]
+    
+    VPC --> TGW[aws_ec2_transit_gateway]
+    TGW --> TGW_Attach[aws_ec2_transit_gateway_vpc_attachment]
+    
+    VPN --> Alarms[aws_cloudwatch_metric_alarm]
+```
 
 ## Features
 

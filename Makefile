@@ -184,12 +184,16 @@ compliance-check: ## Run compliance check with checkov
 # =============================================================================
 
 .PHONY: test
-test: ## Run Terratest (if available)
-	@echo "$(BLUE)Running tests...$(NC)"
-	@if [ -d "test" ]; then \
+test: ## Run Terraform native tests and Terratest (if available)
+	@echo "$(BLUE)Running Terraform native tests...$(NC)"
+	terraform test
+	@echo "$(GREEN)✓ Terraform tests passed$(NC)"
+	@echo "$(BLUE)Running Terratest...$(NC)"
+	@if [ -d "test" ] && [ -f "test/go.mod" ]; then \
 		cd test && go test -v -timeout 30m; \
+		echo "$(GREEN)✓ Terratest completed$(NC)"; \
 	else \
-		echo "$(YELLOW)No test directory found$(NC)"; \
+		echo "$(YELLOW)No Terratest found$(NC)"; \
 	fi
 
 # =============================================================================

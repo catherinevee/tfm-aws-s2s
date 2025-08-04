@@ -7,7 +7,7 @@
 # =============================================================================
 
 output "vpc_id" {
-  description = "ID of the VPC"
+  description = "The ID of the VPC created by this module. Use this value to reference the VPC in other resources or modules."
   value       = var.create_vpc ? aws_vpc.main[0].id : null
 }
 

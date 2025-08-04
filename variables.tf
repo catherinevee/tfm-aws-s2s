@@ -7,13 +7,23 @@
 # =============================================================================
 
 variable "aws_region" {
-  description = "AWS region to deploy resources"
+  description = "AWS region to deploy resources. Must be a valid AWS region identifier."
   type        = string
-  default     = "us-east-1" # Default: us-east-1
+  default     = "us-east-1"
 
   validation {
     condition     = can(regex("^[a-z0-9-]+$", var.aws_region))
     error_message = "AWS region must contain only lowercase letters, numbers, and hyphens."
+  }
+
+  validation {
+    condition = contains([
+      "us-east-1", "us-east-2", "us-west-1", "us-west-2",
+      "eu-west-1", "eu-west-2", "eu-west-3", "eu-central-1",
+      "ap-southeast-1", "ap-southeast-2", "ap-northeast-1",
+      "ca-central-1", "sa-east-1"
+    ], var.aws_region)
+    error_message = "AWS region must be a valid AWS region. Common regions: us-east-1, us-west-2, eu-west-1, etc."
   }
 }
 
@@ -780,4 +790,67 @@ variable "vpc_endpoints" {
     tags                     = optional(map(string), {}) # Default: empty map
   }))
   default = {} # Default: empty map
+}
+
+# =============================================================================
+# VPC Flow Logs Configuration
+# =============================================================================
+
+variable "enable_vpc_flow_logs" {
+  description = "Whether to enable VPC Flow Logs for network monitoring and troubleshooting"
+  type        = bool
+  default     = false
+}
+
+variable "vpc_flow_log_format" {
+  description = "The format for VPC Flow Logs. Use default format or specify custom fields"
+  type        = string
+  default     = "$${version} $${account-id} $${interface-id} $${srcaddr} $${dstaddr} $${srcport} $${dstport} $${protocol} $${packets} $${bytes} $${windowstart} $${windowend} $${action} $${flowlogstatus}"
+
+  validation {
+    condition     = can(regex("\\$\\{", var.vpc_flow_log_format))
+    error_message = "VPC Flow Log format must contain at least one field placeholder (e.g., ${version})."
+  }
+}
+
+variable "vpc_flow_log_max_aggregation_interval" {
+  description = "Maximum interval of time in seconds during which a flow is captured and aggregated"
+  type        = number
+  default     = 600
+
+  validation {
+    condition     = contains([60, 600], var.vpc_flow_log_max_aggregation_interval)
+    error_message = "VPC Flow Log max aggregation interval must be either 60 or 600 seconds."
+  }
+}
+
+variable "vpc_flow_log_retention_days" {
+  description = "Number of days to retain VPC Flow Logs in CloudWatch"
+  type        = number
+  default     = 14
+
+  validation {
+    condition = contains([
+      1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653
+    ], var.vpc_flow_log_retention_days)
+    error_message = "VPC Flow Log retention days must be a valid CloudWatch Logs retention period."
+  }
+}
+
+variable "vpc_flow_log_kms_key_id" {
+  description = "KMS key ID for VPC Flow Logs encryption"
+  type        = string
+  default     = null
+}
+
+variable "vpc_flow_log_cross_account_role" {
+  description = "ARN of the IAM role for cross-account VPC Flow Logs delivery"
+  type        = string
+  default     = null
+}
+
+variable "vpc_flow_log_tags" {
+  description = "Additional tags for VPC Flow Logs resources"
+  type        = map(string)
+  default     = {}
 } 
